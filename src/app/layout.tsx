@@ -30,7 +30,7 @@ export default function RootLayout({
       className={`${syne.variable} ${dmSans.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col noise-bg selection:bg-accent/30 selection:text-foreground">
+      <body suppressHydrationWarning className="min-h-full flex flex-col noise-bg selection:bg-accent/30 selection:text-foreground">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
