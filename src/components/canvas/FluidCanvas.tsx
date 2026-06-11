@@ -2,7 +2,7 @@
 
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Points, PointMaterial } from "@react-three/drei";
+import { Points, PointMaterial, Torus, Sphere, Octahedron, Environment } from "@react-three/drei";
 import * as THREE from "three";
 
 const PARTICLE_COUNT = 5000;
@@ -45,10 +45,62 @@ function ParticleCloud() {
   );
 }
 
+function FloatingShapes() {
+  const groupRef = useRef<THREE.Group>(null);
+  
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      const time = state.clock.getElapsedTime();
+      groupRef.current.position.y = Math.sin(time * 0.5) * 0.1;
+      
+      groupRef.current.children.forEach((child, i) => {
+        child.rotation.x += delta * (0.1 + i * 0.05);
+        child.rotation.y += delta * (0.15 - i * 0.05);
+      });
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      <Torus args={[1.5, 0.5, 32, 64]} position={[3, 0.5, -2]}>
+        <meshPhysicalMaterial 
+          color="#050505"
+          metalness={0.9}
+          roughness={0.1}
+          clearcoat={1}
+          clearcoatRoughness={0.1}
+        />
+      </Torus>
+      <Sphere args={[0.9, 64, 64]} position={[-1.5, -1.2, -1]}>
+        <meshPhysicalMaterial 
+          color="#c9a84c"
+          metalness={0.8}
+          roughness={0.2}
+          transmission={0.4}
+          ior={1.5}
+          thickness={0.5}
+        />
+      </Sphere>
+      <Octahedron args={[0.5]} position={[0.5, 2.2, -3]}>
+        <meshPhysicalMaterial 
+          color="#1a1a1a"
+          metalness={1}
+          roughness={0.2}
+        />
+      </Octahedron>
+    </group>
+  );
+}
+
 export function FluidCanvas() {
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none dark:opacity-40 opacity-20 transition-opacity duration-500">
-      <Canvas camera={{ position: [0, 0, 2.5] }}>
+    <div className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-500 opacity-60">
+      <Canvas camera={{ position: [0, 0, 4], fov: 45 }}>
+        <ambientLight intensity={1} />
+        <directionalLight position={[10, 10, 5]} intensity={2} color="#c9a84c" />
+        <directionalLight position={[-10, -10, -5]} intensity={1} />
+        <Environment preset="city" />
+        <FloatingShapes />
         <ParticleCloud />
       </Canvas>
     </div>

@@ -71,7 +71,7 @@ export function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 1 }}
-          className="absolute bottom-8 sm:bottom-12 left-6 md:left-16 flex items-center gap-4"
+          className="mt-16 sm:mt-24 flex items-center gap-4"
         >
           <div className="w-[1px] h-16 sm:h-20 bg-gradient-to-b from-accent/50 to-transparent relative overflow-hidden">
             <motion.div
