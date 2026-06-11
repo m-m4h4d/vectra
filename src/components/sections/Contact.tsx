@@ -1,8 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 export function Contact() {
+  const [copied, setCopied] = useState(false);
+  const email = "nacheez.writes@gmail.com";
+
+  const handleEmailClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigator.clipboard.writeText(email);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <section id="contact" className="relative z-10 bg-background pt-10 md:pt-20">
       <div className="relative overflow-hidden bg-card mx-4 sm:mx-8 md:mx-12 rounded-t-[32px] sm:rounded-t-[48px] border border-accent/10 border-b-0 shadow-2xl">
@@ -24,12 +35,12 @@ export function Contact() {
               Let&apos;s build something<br />
               <span className="gradient-text">extraordinary</span>
             </h2>
-            <a
-              href="mailto:hello@vectra.studio"
+            <button
+              onClick={handleEmailClick}
               className="inline-block px-10 md:px-12 py-4 md:py-5 bg-accent text-card font-semibold text-xs md:text-sm tracking-[0.1em] uppercase rounded-full no-underline transition-all duration-500 hover:shadow-[0_0_40px_rgba(201,168,76,0.3)] hover:scale-105"
             >
-              hello@vectra.studio
-            </a>
+              {copied ? "Copied to clipboard!" : email}
+            </button>
           </motion.div>
         </div>
       </div>
