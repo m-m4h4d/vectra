@@ -4,14 +4,16 @@ import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Sphere } from "@react-three/drei";
 import * as THREE from "three";
+import { useCanvasFrameloop, clampDelta } from "@/hooks/useCanvasFrameloop";
 
 function GeometricMesh() {
   const groupRef = useRef<THREE.Group>(null);
   
   useFrame((state, delta) => {
     if (groupRef.current) {
-      groupRef.current.rotation.x += delta * 0.05;
-      groupRef.current.rotation.y += delta * 0.08;
+      const dt = clampDelta(delta);
+      groupRef.current.rotation.x += dt * 0.05;
+      groupRef.current.rotation.y += dt * 0.08;
     }
   });
 
@@ -28,9 +30,12 @@ function GeometricMesh() {
 }
 
 export function BackgroundCanvas() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const frameloop = useCanvasFrameloop(containerRef);
+
   return (
-    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[900px] md:h-[900px] opacity-20 pointer-events-none transition-opacity duration-500">
-      <Canvas camera={{ position: [0, 0, 5] }}>
+    <div ref={containerRef} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[900px] md:h-[900px] opacity-20 pointer-events-none transition-opacity duration-500">
+      <Canvas camera={{ position: [0, 0, 5] }} dpr={[1, 1.5]} frameloop={frameloop}>
         <GeometricMesh />
       </Canvas>
     </div>

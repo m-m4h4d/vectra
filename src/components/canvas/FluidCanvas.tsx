@@ -2,8 +2,9 @@
 
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Points, PointMaterial, Torus, Sphere, Octahedron, Environment } from "@react-three/drei";
+import { Points, PointMaterial, Torus, Sphere, Octahedron, Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
+import { useCanvasFrameloop, clampDelta } from "@/hooks/useCanvasFrameloop";
 
 const PARTICLE_COUNT = 5000;
 const initialParticles = new Float32Array(PARTICLE_COUNT * 3);
@@ -24,8 +25,9 @@ function ParticleCloud() {
 
   useFrame((state, delta) => {
     if (ref.current) {
-      ref.current.rotation.x -= delta / 15;
-      ref.current.rotation.y -= delta / 20;
+      const dt = clampDelta(delta);
+      ref.current.rotation.x -= dt / 15;
+      ref.current.rotation.y -= dt / 20;
     }
   });
 
@@ -51,11 +53,12 @@ function FloatingShapes() {
   useFrame((state, delta) => {
     if (groupRef.current) {
       const time = state.clock.getElapsedTime();
+      const dt = clampDelta(delta);
       groupRef.current.position.y = Math.sin(time * 0.5) * 0.1;
       
       groupRef.current.children.forEach((child, i) => {
-        child.rotation.x += delta * (0.1 + i * 0.05);
-        child.rotation.y += delta * (0.15 - i * 0.05);
+        child.rotation.x += dt * (0.1 + i * 0.05);
+        child.rotation.y += dt * (0.15 - i * 0.05);
       });
     }
   });
@@ -76,9 +79,8 @@ function FloatingShapes() {
           color="#c9a84c"
           metalness={0.8}
           roughness={0.2}
-          transmission={0.4}
-          ior={1.5}
-          thickness={0.5}
+          clearcoat={1}
+          clearcoatRoughness={0.15}
         />
       </Sphere>
       <Octahedron args={[0.5]} position={[0.5, 2.2, -3]}>
@@ -93,13 +95,22 @@ function FloatingShapes() {
 }
 
 export function FluidCanvas() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const frameloop = useCanvasFrameloop(containerRef);
+
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-500 opacity-60">
-      <Canvas camera={{ position: [0, 0, 4], fov: 45 }}>
+    <div ref={containerRef} className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-500 opacity-60">
+      <Canvas camera={{ position: [0, 0, 4], fov: 45 }} dpr={[1, 1.5]} frameloop={frameloop}>
         <ambientLight intensity={1} />
         <directionalLight position={[10, 10, 5]} intensity={2} color="#c9a84c" />
         <directionalLight position={[-10, -10, -5]} intensity={1} />
-        <Environment preset="city" />
+        {/* Local light rig instead of a CDN-hosted HDR preset; rendered once. */}
+        <Environment resolution={256}>
+          <Lightformer form="rect" intensity={4} position={[0, 5, -9]} scale={[10, 10, 1]} />
+          <Lightformer form="rect" intensity={2} position={[-5, 1, -1]} rotation-y={Math.PI / 2} scale={[20, 0.5, 1]} />
+          <Lightformer form="rect" intensity={2} position={[5, -1, -1]} rotation-y={-Math.PI / 2} scale={[20, 0.5, 1]} />
+          <Lightformer form="ring" color="#c9a84c" intensity={3} position={[-5, 2, 5]} scale={3} />
+        </Environment>
         <FloatingShapes />
         <ParticleCloud />
       </Canvas>
