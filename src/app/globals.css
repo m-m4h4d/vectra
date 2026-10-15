@@ -41,12 +41,10 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-::-webkit-scrollbar {
-  display: none;
-}
+/* Keep the native scrollbar (it shows position and length, and can be dragged), styled to match the theme. */
 html {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 45%, transparent) var(--background);
 }
 
 /* Gradient Text utility */
