@@ -50,7 +50,7 @@ export function Navbar() {
           <ThemeToggle />
           <button 
             onClick={scrollToContact}
-            className="text-xs sm:text-sm font-medium px-5 sm:px-7 py-2 sm:py-2.5 rounded-full border border-accent/25 text-accent bg-transparent hover:bg-accent hover:text-card transition-all duration-300 tracking-wide"
+            className="text-xs sm:text-sm font-medium px-5 sm:px-7 py-2 sm:py-2.5 rounded-full border border-accent/25 text-accent bg-background/60 backdrop-blur-sm hover:bg-accent hover:text-accent-foreground transition-all duration-300 tracking-wide"
           >
             Get in Touch
           </button>

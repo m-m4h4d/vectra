@@ -7,6 +7,7 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-muted: var(--muted);
   --font-syne: var(--font-syne);
   --font-dm-sans: var(--font-dm-sans);
@@ -16,8 +17,9 @@
   /* Default to Dark Mode */
   --background: #050505;
   --foreground: #f0e6d3;
-  --muted: #6b6560;
+  --muted: #8a837c;
   --accent: #c9a84c;
+  --accent-foreground: #0e0e0c;
   --card: #0e0e0c;
 }
 
@@ -25,7 +27,9 @@
   --background: #fafafa;
   --foreground: #111111;
   --muted: #666666;
-  --accent: #c9a84c;
+  /* Deeper gold so accent text and white-on-accent both clear WCAG AA (4.5:1). */
+  --accent: #8a6a1c;
+  --accent-foreground: #ffffff;
   --card: #ffffff;
 }
 
