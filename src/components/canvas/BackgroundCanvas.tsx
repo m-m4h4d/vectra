@@ -7,8 +7,9 @@ import { useScroll, type MotionValue } from "framer-motion";
 import * as THREE from "three";
 import { useCanvasFrameloop, clampDelta } from "@/hooks/useCanvasFrameloop";
 import { useDampedProgress } from "@/hooks/useDampedProgress";
+import { useScenePalette } from "@/lib/scenePalette";
 
-function GeometricMesh({ progress }: { progress: MotionValue<number> }) {
+function GeometricMesh({ progress, color }: { progress: MotionValue<number>; color: string }) {
   const innerRef = useRef<THREE.Mesh>(null);
   const outerRef = useRef<THREE.Mesh>(null);
   const step = useDampedProgress(progress);
@@ -33,10 +34,10 @@ function GeometricMesh({ progress }: { progress: MotionValue<number> }) {
   return (
     <group scale={2}>
       <Sphere ref={innerRef} args={[2, 16, 16]}>
-        <meshBasicMaterial color="#c9a84c" wireframe transparent opacity={0.06} />
+        <meshBasicMaterial color={color} wireframe transparent opacity={0.06} />
       </Sphere>
       <Sphere ref={outerRef} args={[2.5, 8, 8]}>
-        <meshBasicMaterial color="#c9a84c" wireframe transparent opacity={0.04} />
+        <meshBasicMaterial color={color} wireframe transparent opacity={0.04} />
       </Sphere>
     </group>
   );
@@ -45,6 +46,7 @@ function GeometricMesh({ progress }: { progress: MotionValue<number> }) {
 export function BackgroundCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const frameloop = useCanvasFrameloop(containerRef);
+  const palette = useScenePalette();
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],
@@ -53,7 +55,7 @@ export function BackgroundCanvas() {
   return (
     <div ref={containerRef} className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[900px] md:h-[900px] opacity-20 pointer-events-none transition-opacity duration-500">
       <Canvas camera={{ position: [0, 0, 5] }} dpr={[1, 1.5]} frameloop={frameloop}>
-        <GeometricMesh progress={scrollYProgress} />
+        <GeometricMesh progress={scrollYProgress} color={palette.accent} />
       </Canvas>
     </div>
   );

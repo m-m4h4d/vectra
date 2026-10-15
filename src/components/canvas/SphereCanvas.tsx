@@ -7,8 +7,9 @@ import { useScroll, type MotionValue } from "framer-motion";
 import * as THREE from "three";
 import { useCanvasFrameloop, clampDelta } from "@/hooks/useCanvasFrameloop";
 import { useDampedProgress } from "@/hooks/useDampedProgress";
+import { useScenePalette } from "@/lib/scenePalette";
 
-function AnimatedSphere({ progress }: { progress: MotionValue<number> }) {
+function AnimatedSphere({ progress, color }: { progress: MotionValue<number>; color: string }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<ComponentRef<typeof MeshDistortMaterial>>(null);
   const step = useDampedProgress(progress);
@@ -37,7 +38,7 @@ function AnimatedSphere({ progress }: { progress: MotionValue<number> }) {
     <Sphere ref={meshRef} args={[1.5, 64, 64]} scale={1.2}>
       <MeshDistortMaterial
         ref={materialRef}
-        color="#c9a84c"
+        color={color}
         attach="material"
         speed={2}
         roughness={0.2}
@@ -53,6 +54,7 @@ function AnimatedSphere({ progress }: { progress: MotionValue<number> }) {
 export function SphereCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const frameloop = useCanvasFrameloop(containerRef);
+  const palette = useScenePalette();
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"],
@@ -63,7 +65,7 @@ export function SphereCanvas() {
       <Canvas camera={{ position: [0, 0, 5] }} dpr={[1, 1.5]} frameloop={frameloop}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} intensity={1} />
-        <AnimatedSphere progress={scrollYProgress} />
+        <AnimatedSphere progress={scrollYProgress} color={palette.accent} />
       </Canvas>
     </div>
   );

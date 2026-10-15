@@ -18,7 +18,7 @@ export function ThemeToggle({ className }: { className?: string }) {
     return (
       <button
         className={cn(
-          "w-10 h-10 flex items-center justify-center rounded-full border border-accent/25 text-accent bg-transparent transition-all",
+          "w-10 h-10 flex items-center justify-center rounded-full border border-accent/25 text-accent bg-background/60 backdrop-blur-sm transition-all",
           className
         )}
       >
@@ -31,7 +31,7 @@ export function ThemeToggle({ className }: { className?: string }) {
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       className={cn(
-        "w-10 h-10 flex items-center justify-center rounded-full border border-accent/25 text-accent bg-transparent hover:bg-accent/10 transition-all duration-300",
+        "w-10 h-10 flex items-center justify-center rounded-full border border-accent/25 text-accent bg-background/60 backdrop-blur-sm hover:bg-accent/10 transition-all duration-300",
         className
       )}
     >
