@@ -1,17 +1,26 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const EMAIL = "nacheez.writes@gmail.com";
 
 export function Contact() {
   const [copied, setCopied] = useState(false);
-  const email = "nacheez.writes@gmail.com";
+  const resetTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  const handleEmailClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    navigator.clipboard.writeText(email);
+  useEffect(() => () => clearTimeout(resetTimer.current), []);
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(EMAIL);
+    } catch {
+      // Clipboard is unavailable (insecure context or denied); the mailto link still works.
+      return;
+    }
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    clearTimeout(resetTimer.current);
+    resetTimer.current = setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -35,12 +44,21 @@ export function Contact() {
               Let&apos;s build something<br />
               <span className="gradient-text">extraordinary</span>
             </h2>
-            <button
-              onClick={handleEmailClick}
-              className="inline-block px-10 md:px-12 py-4 md:py-5 bg-accent text-card font-semibold text-xs md:text-sm tracking-[0.1em] uppercase rounded-full no-underline transition-all duration-500 hover:shadow-[0_0_40px_rgba(201,168,76,0.3)] motion-safe:hover:scale-105"
-            >
-              {copied ? "Copied to clipboard!" : email}
-            </button>
+            <div className="flex flex-col items-center gap-5">
+              <a
+                href={`mailto:${EMAIL}`}
+                className="inline-block px-10 md:px-12 py-4 md:py-5 bg-accent text-accent-foreground font-semibold text-xs md:text-sm tracking-[0.1em] uppercase rounded-full no-underline transition-all duration-500 hover:shadow-[0_0_40px_rgba(201,168,76,0.3)] motion-safe:hover:scale-105"
+              >
+                {EMAIL}
+              </a>
+              <button
+                type="button"
+                onClick={copyEmail}
+                className="text-muted hover:text-accent text-xs tracking-[0.2em] uppercase font-dm-sans transition-colors duration-300"
+              >
+                <span aria-live="polite">{copied ? "Copied to clipboard" : "Copy email"}</span>
+              </button>
+            </div>
           </motion.div>
         </div>
       </div>
