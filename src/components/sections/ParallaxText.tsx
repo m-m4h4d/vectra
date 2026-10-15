@@ -9,6 +9,7 @@ import {
   useMotionValue,
   useVelocity,
   useAnimationFrame,
+  useReducedMotion,
 } from "framer-motion";
 
 interface ParallaxProps {
@@ -35,8 +36,11 @@ export function ParallaxText({ children, baseVelocity = 100 }: ParallaxProps) {
 
   const x = useTransform(baseX, (v) => `${wrap(-20, -45, v)}%`);
 
+  const reducedMotion = useReducedMotion();
   const directionFactor = useRef<number>(1);
   useAnimationFrame((t, delta) => {
+    if (reducedMotion) return;
+
     let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
 
     if (velocityFactor.get() < 0) {
@@ -53,7 +57,7 @@ export function ParallaxText({ children, baseVelocity = 100 }: ParallaxProps) {
     <div className="relative z-10 overflow-hidden whitespace-nowrap py-16 md:py-20 bg-background flex flex-col justify-center">
       <div className="h-[1px] bg-gradient-to-r from-transparent via-accent/15 to-transparent absolute top-0 left-0 right-0" />
       
-      <motion.div className="flex gap-8 md:gap-12 whitespace-nowrap" style={{ x }}>
+      <motion.div aria-hidden="true" className="flex gap-8 md:gap-12 whitespace-nowrap" style={{ x }}>
         {Array.from({ length: 8 }).map((_, i) => (
           <span
             key={i}

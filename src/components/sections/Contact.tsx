@@ -37,7 +37,7 @@ export function Contact() {
             </h2>
             <button
               onClick={handleEmailClick}
-              className="inline-block px-10 md:px-12 py-4 md:py-5 bg-accent text-card font-semibold text-xs md:text-sm tracking-[0.1em] uppercase rounded-full no-underline transition-all duration-500 hover:shadow-[0_0_40px_rgba(201,168,76,0.3)] hover:scale-105"
+              className="inline-block px-10 md:px-12 py-4 md:py-5 bg-accent text-card font-semibold text-xs md:text-sm tracking-[0.1em] uppercase rounded-full no-underline transition-all duration-500 hover:shadow-[0_0_40px_rgba(201,168,76,0.3)] motion-safe:hover:scale-105"
             >
               {copied ? "Copied to clipboard!" : email}
             </button>

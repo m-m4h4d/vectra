@@ -1,7 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BackgroundCanvas } from "@/components/canvas/BackgroundCanvas";
+import dynamic from "next/dynamic";
+
+// three.js is large; load it in its own chunk on the client only.
+const BackgroundCanvas = dynamic(
+  () => import("@/components/canvas/BackgroundCanvas").then((m) => m.BackgroundCanvas),
+  { ssr: false }
+);
 
 const features = [
   {

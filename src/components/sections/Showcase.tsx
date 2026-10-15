@@ -1,7 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { SphereCanvas } from "@/components/canvas/SphereCanvas";
+import dynamic from "next/dynamic";
+
+// three.js is large; load it in its own chunk on the client only.
+const SphereCanvas = dynamic(
+  () => import("@/components/canvas/SphereCanvas").then((m) => m.SphereCanvas),
+  { ssr: false }
+);
 
 export function Showcase() {
   return (

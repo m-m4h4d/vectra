@@ -1,7 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FluidCanvas } from "@/components/canvas/FluidCanvas";
+import dynamic from "next/dynamic";
+
+// three.js is large; load it in its own chunk on the client only.
+const FluidCanvas = dynamic(
+  () => import("@/components/canvas/FluidCanvas").then((m) => m.FluidCanvas),
+  { ssr: false }
+);
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -77,7 +83,7 @@ export function Hero() {
             <motion.div
               animate={{ y: [0, 80] }}
               transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-              className="w-full h-5 bg-accent"
+              className="w-full h-5 bg-accent motion-reduce:hidden"
             />
           </div>
           <span className="text-muted text-[10px] sm:text-[11px] tracking-[0.25em] uppercase font-medium">

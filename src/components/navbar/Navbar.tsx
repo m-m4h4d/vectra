@@ -1,17 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLenis } from "lenis/react";
+import { useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const lenis = useLenis();
+  const reducedMotion = useReducedMotion();
+
+  const scrollToContact = () => {
+    if (lenis) {
+      lenis.scrollTo("#contact", { immediate: !!reducedMotion });
+    } else {
+      document.getElementById("contact")?.scrollIntoView({
+        behavior: reducedMotion ? "auto" : "smooth",
+      });
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -35,7 +49,7 @@ export function Navbar() {
         <div className="flex items-center gap-3 md:gap-4">
           <ThemeToggle />
           <button 
-            onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={scrollToContact}
             className="text-xs sm:text-sm font-medium px-5 sm:px-7 py-2 sm:py-2.5 rounded-full border border-accent/25 text-accent bg-transparent hover:bg-accent hover:text-card transition-all duration-300 tracking-wide"
           >
             Get in Touch
