@@ -29,8 +29,9 @@ Then open [http://localhost:3000](http://localhost:3000).
 ## Project layout
 
 ```
+assets/fonts/   Syne Bold (OFL) for the generated Open Graph image
 src/
-  app/          Root layout, page, global styles and icons
+  app/          Root layout, page, global styles, icons and Open Graph image
   components/
     canvas/     The three WebGL scenes (hero, showcase sphere, features background)
     hero/ navbar/ sections/ footer/ ui/
@@ -51,6 +52,7 @@ src/
 - **3D colours:** `src/lib/scenePalette.ts`, for both themes.
 - **Scroll motion:** the `SHAPES` list and camera move in `src/components/canvas/FluidCanvas.tsx`.
 - **Contact email:** `EMAIL` in `src/components/sections/Contact.tsx`.
+- **Link preview image:** `src/app/opengraph-image.tsx`. On Vercel its URL uses the production domain; elsewhere, set `metadataBase` in `src/app/layout.tsx` to your domain.
 
 ## License
 

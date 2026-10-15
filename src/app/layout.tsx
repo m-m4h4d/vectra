@@ -14,7 +14,14 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
 });
 
+// Absolute base for URL metadata such as the Open Graph image. On Vercel this is
+// the production domain; locally it falls back to the dev server.
+const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Vectra — Creative Digital Agency",
   description: "We craft immersive digital experiences that elevate brands through design, development, and strategic innovation.",
 };
@@ -30,7 +37,7 @@ export default function RootLayout({
       className={`${syne.variable} ${dmSans.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body suppressHydrationWarning className="min-h-full flex flex-col noise-bg selection:bg-accent/30 selection:text-foreground">
+      <body className="min-h-full flex flex-col noise-bg selection:bg-accent/30 selection:text-foreground">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
