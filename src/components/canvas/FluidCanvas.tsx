@@ -4,7 +4,9 @@ import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial, Torus, Sphere, Octahedron, Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
+import { useScroll, type MotionValue } from "framer-motion";
 import { useCanvasFrameloop, clampDelta } from "@/hooks/useCanvasFrameloop";
+import { useDampedProgress } from "@/hooks/useDampedProgress";
 
 const PARTICLE_COUNT = 5000;
 const initialParticles = new Float32Array(PARTICLE_COUNT * 3);
@@ -18,21 +20,31 @@ for (let i = 0; i < PARTICLE_COUNT; i++) {
   initialParticles[i * 3 + 2] = r * Math.cos(phi);
 }
 
-function ParticleCloud() {
+type ScrollProps = { progress: MotionValue<number> };
+
+function ParticleCloud({ progress }: ScrollProps) {
   const ref = useRef<THREE.Points>(null);
-  
+  const tiltRef = useRef<THREE.Group>(null);
+  const step = useDampedProgress(progress);
+
   const particles = useMemo(() => initialParticles, []);
 
   useFrame((state, delta) => {
+    const p = step(delta);
     if (ref.current) {
       const dt = clampDelta(delta);
       ref.current.rotation.x -= dt / 15;
       ref.current.rotation.y -= dt / 20;
     }
+    if (tiltRef.current) {
+      // Swirl and expand the cloud as the camera pushes into it.
+      tiltRef.current.rotation.z = Math.PI / 4 + p * Math.PI * 0.5;
+      tiltRef.current.scale.setScalar(1 + p * 0.8);
+    }
   });
 
   return (
-    <group rotation={[0, 0, Math.PI / 4]}>
+    <group ref={tiltRef} rotation={[0, 0, Math.PI / 4]}>
       <Points ref={ref} positions={particles} stride={3} frustumCulled={false}>
         <PointMaterial
           transparent
@@ -47,25 +59,39 @@ function ParticleCloud() {
   );
 }
 
-function FloatingShapes() {
+// Nearer shapes travel further on scroll, which is what sells the depth.
+const SHAPES = {
+  torus: { position: [3, 0.5, -2] as const, travel: 2.2, spin: 1.5 },
+  sphere: { position: [-1.5, -1.2, -1] as const, travel: 3.2, spin: 1 },
+  octahedron: { position: [0.5, 2.2, -3] as const, travel: 1.4, spin: 3 },
+};
+
+function FloatingShapes({ progress }: ScrollProps) {
   const groupRef = useRef<THREE.Group>(null);
+  const step = useDampedProgress(progress);
   
   useFrame((state, delta) => {
+    const p = step(delta);
     if (groupRef.current) {
       const time = state.clock.getElapsedTime();
       const dt = clampDelta(delta);
       groupRef.current.position.y = Math.sin(time * 0.5) * 0.1;
       
-      groupRef.current.children.forEach((child, i) => {
+      Object.values(SHAPES).forEach((shape, i) => {
+        const child = groupRef.current!.children[i];
+        child.position.y = shape.position[1] + p * shape.travel;
         child.rotation.x += dt * (0.1 + i * 0.05);
         child.rotation.y += dt * (0.15 - i * 0.05);
+        child.rotation.z = p * shape.spin;
       });
     }
+    // Dolly the camera forward through the scene.
+    state.camera.position.z = 4 - p * 1.5;
   });
 
   return (
     <group ref={groupRef}>
-      <Torus args={[1.5, 0.5, 32, 64]} position={[3, 0.5, -2]}>
+      <Torus args={[1.5, 0.5, 32, 64]} position={SHAPES.torus.position}>
         <meshPhysicalMaterial 
           color="#050505"
           metalness={0.9}
@@ -74,7 +100,7 @@ function FloatingShapes() {
           clearcoatRoughness={0.1}
         />
       </Torus>
-      <Sphere args={[0.9, 64, 64]} position={[-1.5, -1.2, -1]}>
+      <Sphere args={[0.9, 64, 64]} position={SHAPES.sphere.position}>
         <meshPhysicalMaterial 
           color="#c9a84c"
           metalness={0.8}
@@ -83,7 +109,7 @@ function FloatingShapes() {
           clearcoatRoughness={0.15}
         />
       </Sphere>
-      <Octahedron args={[0.5]} position={[0.5, 2.2, -3]}>
+      <Octahedron args={[0.5]} position={SHAPES.octahedron.position}>
         <meshPhysicalMaterial 
           color="#1a1a1a"
           metalness={1}
@@ -97,6 +123,10 @@ function FloatingShapes() {
 export function FluidCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const frameloop = useCanvasFrameloop(containerRef);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"],
+  });
 
   return (
     <div ref={containerRef} className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-500 opacity-60">
@@ -111,8 +141,8 @@ export function FluidCanvas() {
           <Lightformer form="rect" intensity={2} position={[5, -1, -1]} rotation-y={-Math.PI / 2} scale={[20, 0.5, 1]} />
           <Lightformer form="ring" color="#c9a84c" intensity={3} position={[-5, 2, 5]} scale={3} />
         </Environment>
-        <FloatingShapes />
-        <ParticleCloud />
+        <FloatingShapes progress={scrollYProgress} />
+        <ParticleCloud progress={scrollYProgress} />
       </Canvas>
     </div>
   );
