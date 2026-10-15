@@ -7,6 +7,7 @@ import * as THREE from "three";
 import { useScroll, type MotionValue } from "framer-motion";
 import { useCanvasFrameloop, clampDelta } from "@/hooks/useCanvasFrameloop";
 import { useDampedProgress } from "@/hooks/useDampedProgress";
+import { useScenePalette, type ScenePalette } from "@/lib/scenePalette";
 
 const PARTICLE_COUNT = 5000;
 const initialParticles = new Float32Array(PARTICLE_COUNT * 3);
@@ -20,9 +21,9 @@ for (let i = 0; i < PARTICLE_COUNT; i++) {
   initialParticles[i * 3 + 2] = r * Math.cos(phi);
 }
 
-type ScrollProps = { progress: MotionValue<number> };
+type SceneProps = { progress: MotionValue<number>; palette: ScenePalette };
 
-function ParticleCloud({ progress }: ScrollProps) {
+function ParticleCloud({ progress, palette }: SceneProps) {
   const ref = useRef<THREE.Points>(null);
   const tiltRef = useRef<THREE.Group>(null);
   const step = useDampedProgress(progress);
@@ -48,7 +49,7 @@ function ParticleCloud({ progress }: ScrollProps) {
       <Points ref={ref} positions={particles} stride={3} frustumCulled={false}>
         <PointMaterial
           transparent
-          color="#c9a84c"
+          color={palette.accent}
           size={0.005}
           sizeAttenuation={true}
           depthWrite={false}
@@ -66,7 +67,7 @@ const SHAPES = {
   octahedron: { position: [0.5, 2.2, -3] as const, travel: 1.4, spin: 3 },
 };
 
-function FloatingShapes({ progress }: ScrollProps) {
+function FloatingShapes({ progress, palette }: SceneProps) {
   const groupRef = useRef<THREE.Group>(null);
   const step = useDampedProgress(progress);
   
@@ -93,7 +94,7 @@ function FloatingShapes({ progress }: ScrollProps) {
     <group ref={groupRef}>
       <Torus args={[1.5, 0.5, 32, 64]} position={SHAPES.torus.position}>
         <meshPhysicalMaterial 
-          color="#050505"
+          color={palette.torus}
           metalness={0.9}
           roughness={0.1}
           clearcoat={1}
@@ -102,7 +103,7 @@ function FloatingShapes({ progress }: ScrollProps) {
       </Torus>
       <Sphere args={[0.9, 64, 64]} position={SHAPES.sphere.position}>
         <meshPhysicalMaterial 
-          color="#c9a84c"
+          color={palette.accent}
           metalness={0.8}
           roughness={0.2}
           clearcoat={1}
@@ -111,7 +112,7 @@ function FloatingShapes({ progress }: ScrollProps) {
       </Sphere>
       <Octahedron args={[0.5]} position={SHAPES.octahedron.position}>
         <meshPhysicalMaterial 
-          color="#1a1a1a"
+          color={palette.octahedron}
           metalness={1}
           roughness={0.2}
         />
@@ -123,6 +124,7 @@ function FloatingShapes({ progress }: ScrollProps) {
 export function FluidCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const frameloop = useCanvasFrameloop(containerRef);
+  const palette = useScenePalette();
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -132,7 +134,7 @@ export function FluidCanvas() {
     <div ref={containerRef} className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-500 opacity-60">
       <Canvas camera={{ position: [0, 0, 4], fov: 45 }} dpr={[1, 1.5]} frameloop={frameloop}>
         <ambientLight intensity={1} />
-        <directionalLight position={[10, 10, 5]} intensity={2} color="#c9a84c" />
+        <directionalLight position={[10, 10, 5]} intensity={2} color={palette.accent} />
         <directionalLight position={[-10, -10, -5]} intensity={1} />
         {/* Local light rig instead of a CDN-hosted HDR preset; rendered once. */}
         <Environment resolution={256}>
@@ -141,8 +143,8 @@ export function FluidCanvas() {
           <Lightformer form="rect" intensity={2} position={[5, -1, -1]} rotation-y={-Math.PI / 2} scale={[20, 0.5, 1]} />
           <Lightformer form="ring" color="#c9a84c" intensity={3} position={[-5, 2, 5]} scale={3} />
         </Environment>
-        <FloatingShapes progress={scrollYProgress} />
-        <ParticleCloud progress={scrollYProgress} />
+        <FloatingShapes progress={scrollYProgress} palette={palette} />
+        <ParticleCloud progress={scrollYProgress} palette={palette} />
       </Canvas>
     </div>
   );
